@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper.QueryableExtensions;
 using ContosoUniversity.Data;
@@ -30,14 +31,14 @@ namespace ContosoUniversity.Features.Departments
 
         }
 
-        public class QueryHandler : AsyncRequestHandler<Query, Model>
+        public class QueryHandler : IRequestHandler<Query, Model>
         {
             private readonly SchoolContext _context;
 
             public QueryHandler(SchoolContext context) => _context = context;
 
-            protected override Task<Model> HandleCore(Query message) => _context.Departments
-                .FromSql(@"SELECT * FROM Department WHERE DepartmentID = {0}", message.Id)
+            public Task<Model> Handle(Query message, CancellationToken cancellationToken) => _context.Departments
+                .FromSqlRaw(@"SELECT * FROM Department WHERE DepartmentID = {0}", message.Id)
                 .ProjectTo<Model>()
                 .SingleOrDefaultAsync();
         }

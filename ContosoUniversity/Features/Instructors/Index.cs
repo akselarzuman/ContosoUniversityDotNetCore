@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper.QueryableExtensions;
 using ContosoUniversity.Data;
@@ -68,21 +69,20 @@ namespace ContosoUniversity.Features.Instructors
             }
         }
 
-        public class Handler : AsyncRequestHandler<Query, Model>
+        public class Handler : IRequestHandler<Query, Model>
         {
             private readonly SchoolContext _db;
 
             public Handler(SchoolContext db) => _db = db;
 
-            protected override async Task<Model> HandleCore(Query message)
+            public async Task<Model> Handle(Query message, CancellationToken cancellationToken)
             {
                 var instructors = await _db.Instructors
                     .Include(i => i.CourseAssignments)
                     .ThenInclude(c => c.Course)
                     .OrderBy(i => i.LastName)
                     .ProjectTo<Model.Instructor>()
-                    .ToListAsync()
-                    ;
+                    .ToListAsync();
 
                 // EF Core cannot project child collections w/o Include
                 // See https://github.com/aspnet/EntityFrameworkCore/issues/9128
