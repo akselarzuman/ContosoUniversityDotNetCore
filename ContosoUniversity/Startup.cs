@@ -34,7 +34,7 @@ namespace ContosoUniversity
 
             services.AddAutoMapper();
 
-            services.AddMediatR();
+            services.AddMediatR(typeof(Startup));
 
             services.AddHtmlTags(new TagConventions());
 
@@ -54,7 +54,9 @@ namespace ContosoUniversity
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseBrowserLink();
+                
+                // is it necessary?
+                // app.UseBrowserLink();
                 Mapper.AssertConfigurationIsValid();
             }
             else
